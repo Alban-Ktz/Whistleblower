@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription Entreprise</title>
+</head>
+<body>
+    <h1>Inscription | Entreprise</h1>
+    <h3> <a href="login.html"> Déjà inscrit ? Se connecter</a> </h3>
+
+    <h3> <a href="upload_fichier.html"> Upload un fichier </a> </h3>
+
+    <form id="registerForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="password">Mot de passe:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <label for="name">Nom de l'entreprise:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="location">Localisation:</label>
+        <input type="text" id="location" name="location" required><br><br>
+
+        <label for="sector">Secteur:</label>
+        <input type="text" id="sector" name="sector" required><br><br>
+
+        <label for="plan">Plan:</label>
+        <input type="number" id="plan" name="plan" required><br><br>
+
+        <label for="card_inf">Informations de carte:</label>
+        <input type="text" id="card_inf" name="card_inf" required><br><br>
+
+        <button type="submit">S'inscrire</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <div>
+        <p id="loginStatus">Connecté : NON</p>
+        <button id="logoutButton">Se déconnecter</button>
+    </div>
+
+
+    <script>
+
+        // Affichage si user connecté
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+
+        if (token) {
+            document.getElementById('loginStatus').textContent = `Connecté : OUI (en tant que ${user})`;
+            document.getElementById('logoutButton').style.display = 'block';
+        }
+        else {
+            document.getElementById('logoutButton').style.display = 'none';
+        }
+
+        // Déconnexion
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            localStorage.removeItem('token');
+
+            window.location.href = '/WhistleBlower/public/login.html'; 
+        });
+
+
+        // Inscription
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault(); 
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            data.plan = parseInt(data.plan, 10);
+            
+            try {
+                const response = await fetch('http://127.0.0.1:80/WhistleBlower/public/api/entreprises', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/ld+json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                console.log(result); 
+                
+                if (response.ok) {
+                    document.getElementById('responseMessage').textContent = "Utilisateur créé avec succès";
+                } else {
+                    document.getElementById('responseMessage').textContent = result.errors.join(', ');
+                }
+            } catch (error) {
+                document.getElementById('responseMessage').textContent = 'Une erreur est survenue. ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
