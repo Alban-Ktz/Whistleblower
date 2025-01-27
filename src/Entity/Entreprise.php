@@ -6,9 +6,11 @@ use App\Repository\EntrepriseRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: EntrepriseRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ApiResource]
 class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -32,16 +34,17 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Name = null;
+    private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Location = null;
+    private ?string $location = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Sector = null;
+    private ?string $sector = null;
 
     #[ORM\Column]
-    private ?int $Plan = null;
+    #[Assert\Type('integer')]
+    private ?int $plan = null;
 
     #[ORM\Column(length: 255)]
     private ?string $card_inf = null;

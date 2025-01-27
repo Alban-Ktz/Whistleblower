@@ -3,25 +3,14 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
-class HomeController
+class HomeController extends AbstractController
 {
-    #[Route('/number/{id}', name: 'number')]
-    public function number(int $id): Response
+    #[Route('/api/test', name: 'api')]
+    public function index(): JsonResponse
     {
-        $number = random_int(0, 100);
-
-        return new Response(
-            '<html>
-                <body>
-                    <p>
-                        Random Number: '.$number.'
-                    </p>
-                    <p>
-                        Number ID : '.$id.'
-                    </p>
-                </body>
-            </html>'
-        );
+        return new JsonResponse(['API' => "Api is working."]);
     }
 }

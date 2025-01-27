@@ -1,0 +1,20 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Si le fichier ou le dossier demandé existe, laisser Apache le servir directement
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Sinon, rediriger toutes les requêtes vers index.php
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Ajouter le support pour l'en-tête Authorization requis par certains environnements
+<IfModule mod_setenvif.c>
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>
+
+# Désactiver l'affichage des fichiers .htaccess dans le répertoire public
+<Files ".ht*">
+    Require all denied
+</Files>

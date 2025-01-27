@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Upload File | Entreprise</h1>
+
+    <h3> <a href="index.html"> Pas encore inscrit ? S'inscrire</a> </h3>
+    <h3> <a href="login.html"> Déjà inscrit ? Se connecter</a> </h3>
+    <form id="uploadFile" enctype="multipart/form-data">
+        <label for="file">Choisir un fichier:</label>
+        <input type="file" id="file" name="file" required><br><br>
+
+        <button type="submit">Upload</button>
+    </form> 
+
+
+    <p id="responseMessage"></p>
+
+    <div>
+        <p id="loginStatus">Connecté : NON</p>
+        <button id="logoutButton">Se déconnecter</button>
+    </div>
+
+    <script>
+        // Vérification de l'état de connexion
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+    
+        if (token) {
+            document.getElementById('loginStatus').textContent = `Connecté : OUI (en tant que ${user})`;
+            document.getElementById('logoutButton').style.display = 'block';
+        } else {
+            document.getElementById('logoutButton').style.display = 'none';
+        }
+    
+        // Gestion de la déconnexion
+        document.getElementById('logoutButton').addEventListener('click', function () {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/WhistleBlower/public/login.html';
+        });
+    
+    document.getElementById('uploadFile').addEventListener('submit', async function (e) {
+        e.preventDefault(); // Empêche le comportement par défaut du formulaire
+
+        const fileInput = document.getElementById('file');
+        const file = fileInput.files[0]; // Récupère le fichier sélectionné
+
+        if (!file) {
+            document.getElementById('responseMessage').textContent = 'Veuillez sélectionner un fichier.';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('http://127.0.0.1/WhistleBlower/public/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                document.getElementById('responseMessage').textContent = 'Fichier analysé avec succès ! Résultat dans la console';
+                console.log(result); // Affiche le JSON dans la console pour vérification
+            } else {
+                document.getElementById('responseMessage').textContent = result.error || 'Erreur lors de l’upload.';
+            }
+        } catch (error) {
+            document.getElementById('responseMessage').textContent = 'Une erreur est survenue : ' + error.message;
+        }
+    });
+    </script>
+
+</body>
+</html>
