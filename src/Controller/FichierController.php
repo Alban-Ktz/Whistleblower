@@ -7,11 +7,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Service\UploadFileService;
+use App\Service\ClimatiqService;
 
 class FichierController extends AbstractController
 {
     #[Route('/api/upload', name: 'api_fichier', methods: ['GET', 'POST'])]
-    public function uploadFile(Request $request): JsonResponse
+    public function uploadFile(Request $request, UploadFileService $uploadFileService, ClimatiqService $climatiqService): JsonResponse
     {
         // Récupération du fichier uploadé
         $file = $request->files->get('file');
@@ -26,35 +28,22 @@ class FichierController extends AbstractController
             return new JsonResponse(['error' => 'Format de fichier non supporté'], 400);
         }
 
-        try {
-            // Charger le fichier Excel
-            $spreadsheet = IOFactory::load($file->getPathname());
-            $sheet = $spreadsheet->getActiveSheet();
-
-            // Analyser les données
-            $data = [];
-            $annee = 2024; 
-            foreach ($sheet->getRowIterator(3) as $row) { // Commencer à la 3ème ligne
-                $mois = $sheet->getCell('A' . $row->getRowIndex())->getValue();
-                $consommation = $sheet->getCell('B' . $row->getRowIndex())->getValue();
-
-                if (!empty($mois)) {
-                    $data[] = [
-                        'mois' => $mois,
-                        'consommation' => $consommation ?? 0, // Valeur par défaut si vide
-                    ];
-                }
-            }
-
-            // Structurer le JSON
-            $response = [
-                'annee' => $annee,
-                'data' => $data,
-            ];
-
-            return new JsonResponse($response);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
+        $consommations = $uploadFileService->extractDataFromFile($file);
+        
+        $emissions = [];
+    
+        // Traitement des émissions pour chaque mois
+        foreach ($consommations as $mois => $conso) {
+            $co2 = $climatiqService->getEmissionEstimate((int)$conso, 'FR', "electricity-supply_grid-source_residual_mix");
+            $emissions[$mois] = round($co2, 3); // Arrondi à 3 décimales
         }
+    
+        return new JsonResponse([
+            'region' => 'FR',
+            'consommations' => $consommations,
+            'emissions' => $emissions,
+            'annee' => 2024
+        ]);
+
     }
 }
