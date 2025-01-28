@@ -7,10 +7,24 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+
+use Symfony\Component\Validator\Constraints as Assert;
+use App\ApiResource\EntrepriseProcessor;
 
 #[ORM\Entity(repositoryClass: EntrepriseRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new Get(), 
+        new GetCollection(), 
+        new Post(processor: EntrepriseProcessor::class),
+        new Put(processor: EntrepriseProcessor::class)        
+    ]
+)]
 class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -126,48 +140,48 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getName(): ?string
     {
-        return $this->Name;
+        return $this->name;
     }
 
-    public function setName(string $Name): static
+    public function setName(string $name): static
     {
-        $this->Name = $Name;
+        $this->name = $name;
 
         return $this;
     }
 
     public function getLocation(): ?string
     {
-        return $this->Location;
+        return $this->location;
     }
 
-    public function setLocation(string $Location): static
+    public function setLocation(string $location): static
     {
-        $this->Location = $Location;
+        $this->location = $location;
 
         return $this;
     }
 
     public function getSector(): ?string
     {
-        return $this->Sector;
+        return $this->sector;
     }
 
-    public function setSector(string $Sector): static
+    public function setSector(string $sector): static
     {
-        $this->Sector = $Sector;
+        $this->sector = $sector;
 
         return $this;
     }
 
     public function getPlan(): ?int
     {
-        return $this->Plan;
+        return $this->plan;
     }
 
-    public function setPlan(int $Plan): static
+    public function setPlan(int $plan): static
     {
-        $this->Plan = $Plan;
+        $this->plan = $plan;
 
         return $this;
     }
